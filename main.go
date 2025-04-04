@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/oleksandrdevhub/go-api-starter-kit/db"
-	"github.com/oleksandrdevhub/go-api-starter-kit/handlers"
-	"github.com/oleksandrdevhub/go-api-starter-kit/middleware"
+	"github.com/olksndrdevhub/go-api-starter-kit/db"
+	"github.com/olksndrdevhub/go-api-starter-kit/handlers"
+	"github.com/olksndrdevhub/go-api-starter-kit/middleware"
 	"log"
 	"net/http"
 )

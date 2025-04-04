@@ -1,4 +1,4 @@
-module github.com/oleksandrdevhub/go-api-starter-kit
+module github.com/olksndrdevhub/go-api-starter-kit
 
 go 1.24.1
 

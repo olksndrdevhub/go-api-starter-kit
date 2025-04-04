@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oleksandrdevhub/go-api-starter-kit/db"
-	"github.com/oleksandrdevhub/go-api-starter-kit/utils"
+	"github.com/olksndrdevhub/go-api-starter-kit/db"
+	"github.com/olksndrdevhub/go-api-starter-kit/utils"
 )
 
 type RegisterRequest struct {

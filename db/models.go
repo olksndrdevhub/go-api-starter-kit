@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/oleksandrdevhub/go-api-starter-kit/utils"
+	"github.com/olksndrdevhub/go-api-starter-kit/utils"
 )
 
 type User struct {
