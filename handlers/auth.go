@@ -117,9 +117,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	match, err := utils.VerifyPassword(req.Password, user.Password)
-	if err != nil || !match {
+	if err != nil {
 		log.Printf("ERROR: %v", err)
-		http.Error(w, "Invalid credentials: password mismatch", http.StatusUnauthorized)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if !match {
+		http.Error(w, "Invalid credentials: wrong password", http.StatusUnauthorized)
 		return
 	}
 

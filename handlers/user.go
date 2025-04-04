@@ -21,10 +21,16 @@ type ProfileUpdateRequest struct {
 	LastName  string `json:"last_name"`
 }
 
+type ChangePasswordRequest struct {
+	Password        string `json:"password"`
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
+
 func Profile(w http.ResponseWriter, r *http.Request) {
 	userID, ok := middleware.GetUserIDFromContext(r)
 	if !ok {
-		log.Printf("ERORR: %v", errors.New("user id or email not found"))
+		log.Printf("ERORR: %v", errors.New("user id not found"))
 		utils.WriteJson(w, http.StatusUnauthorized, map[string]string{"message": "unauthorized"})
 		return
 	}
@@ -77,4 +83,75 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 	} else {
 		utils.WriteJson(w, http.StatusMethodNotAllowed, map[string]string{"message": "method not allowed"})
 	}
+}
+
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	var req ChangePasswordRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	userID, ok := middleware.GetUserIDFromContext(r)
+	if !ok {
+		log.Printf("ERORR: %v", errors.New("user id not found"))
+		utils.WriteJson(w, http.StatusUnauthorized, map[string]string{"message": "unauthorized"})
+		return
+	}
+
+	if strings.TrimSpace(req.Password) == "" || strings.TrimSpace(req.NewPassword) == "" || strings.TrimSpace(req.ConfirmPassword) == "" {
+		http.Error(w, "Current password, new password and confirm password are required", http.StatusBadRequest)
+		return
+	}
+
+	//check if current password is correct
+	user, err := db.GetUserByID(userID)
+	if err != nil {
+		log.Printf("ERROR: %v", err)
+		utils.WriteJson(w, http.StatusUnauthorized, map[string]string{"message": "user not found, bad credentials"})
+		return
+	}
+
+	match, err := utils.VerifyPassword(req.Password, user.Password)
+	if err != nil {
+		log.Printf("ERROR: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if !match {
+		http.Error(w, "Current password is incorrect", http.StatusUnauthorized)
+		return
+	}
+
+	// check if new password and confirm password match
+	if req.NewPassword != req.ConfirmPassword {
+		http.Error(w, "New password and confirm password do not match", http.StatusBadRequest)
+		return
+	}
+
+	// check if new password is valid
+	err = utils.ValidatePassword(req.NewPassword)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// hash new password
+	hashedNewPassword, err := utils.HashPassword(req.NewPassword)
+	if err != nil {
+		log.Printf("ERROR: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// set new password
+	err = db.ChangeUserPassword(userID, hashedNewPassword)
+	if err != nil {
+		log.Printf("ERROR: %v", err)
+		utils.WriteJson(w, http.StatusInternalServerError, map[string]string{"message": "internal server error"})
+		return
+	}
+
+	utils.WriteJson(w, http.StatusOK, map[string]string{"message": "password changed"})
 }

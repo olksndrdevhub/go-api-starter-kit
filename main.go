@@ -34,6 +34,7 @@ func main() {
 	// unsafe API router (jwt auth)
 	apiJwtRouter := http.NewServeMux()
 	apiJwtRouter.HandleFunc("/me", handlers.Profile)
+	apiJwtRouter.HandleFunc("POST /me/change-password", handlers.ChangePassword)
 
 	// api versioning
 	apiV1Router := http.NewServeMux()

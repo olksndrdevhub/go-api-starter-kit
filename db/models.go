@@ -34,6 +34,15 @@ func UpdateUser(userID int64, first_name, last_name string) error {
 	return nil
 }
 
+func ChangeUserPassword(userID int64, hashedPassword string) error {
+	query := `update users set password = ?, updated_at = current_timestamp where id = ?`
+	_, err := DB.Exec(query, hashedPassword, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckUserExistsByEmail(email string) (bool, error) {
 	query := `select count(*) from users where email = ?`
 	var count int
