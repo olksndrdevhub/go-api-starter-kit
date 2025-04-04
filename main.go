@@ -20,7 +20,7 @@ func main() {
 	utils.SetJWTSecretKey([]byte(jwtSecret))
 
 	// Get database configuration from environment
-	dbType := utils.GetEnv("DB_TYPE", "sqlite3") // Default to SQLite
+	dbType := utils.GetEnv("DB_TYPE", "sqlite") // Default to SQLite
 
 	dbConfig := db.DBConfig{
 		Type:     dbType,
@@ -29,8 +29,8 @@ func main() {
 		User:     utils.GetEnv("DB_USER", "postgres"),
 		Password: utils.GetEnv("DB_PASSWORD", ""),
 		DBName:   utils.GetEnv("DB_NAME", "app"),
-		SSLMode:  utils.GetEnv("DB_SSL_MODE", "disable"),   // For PostgreSQL
-		FilePath: utils.GetEnv("DB_FILE", "./database.db"), // For SQLite
+		SSLMode:  utils.GetEnv("DB_SSL_MODE", "disable"), // For PostgreSQL
+		FilePath: utils.GetEnv("DB_FILE", "./app.db"),    // For SQLite
 	}
 
 	// Create database instance

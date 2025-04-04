@@ -32,3 +32,6 @@
 
 # OS specific
 .DS_Store
+
+# not ignore
+!*.example

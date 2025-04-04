@@ -136,7 +136,7 @@ func NewDB(config DBConfig) error {
 	var db DBInterface
 
 	switch config.Type {
-	case "sqlite3":
+	case "sqlite":
 		db = NewSQLiteDB(config)
 	case "postgres":
 		db = NewPostgresDB(config)
