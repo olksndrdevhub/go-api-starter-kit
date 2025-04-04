@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
+	"unicode"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -24,6 +25,71 @@ var config = &passwordConfig{
 	parallelism: 2,
 	saltLength:  16,
 	keyLength:   32,
+}
+
+type PasswordValidationError struct {
+	Message string
+}
+
+func (pve PasswordValidationError) Error() string {
+	return pve.Message
+}
+
+// ValidatePassword validates the password by length, complexity, etc
+func ValidatePassword(password string) error {
+	// check length
+	if len(password) < 8 {
+		return &PasswordValidationError{
+			Message: "Password must be at least 8 characters long",
+		}
+	}
+	if len(password) > 72 {
+		return &PasswordValidationError{
+			Message: "Password must be less than 72 characters long",
+		}
+	}
+
+	var (
+		hasUpper,
+		hasLower,
+		hasNumber,
+		hasSpecial bool
+	)
+
+	for _, char := range password {
+		switch {
+		case unicode.IsUpper(char):
+			hasUpper = true
+		case unicode.IsLower(char):
+			hasLower = true
+		case unicode.IsNumber(char):
+			hasNumber = true
+		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+			hasSpecial = true
+		}
+	}
+
+	if !hasUpper {
+		return &PasswordValidationError{
+			Message: "Password must contain at least one uppercase letter",
+		}
+	}
+	if !hasLower {
+		return &PasswordValidationError{
+			Message: "Password must contain at least one lowercase letter",
+		}
+	}
+	if !hasNumber {
+		return &PasswordValidationError{
+			Message: "Password must contain at least one number",
+		}
+	}
+	if !hasSpecial {
+		return &PasswordValidationError{
+			Message: "Password must contain at least one special character",
+		}
+	}
+	return nil
 }
 
 // HashPassword generates a secure hash from the password

@@ -57,6 +57,12 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check password valid
+	if err = utils.ValidatePassword(req.Password); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// hash password
 	hashedPass, err := utils.HashPassword(req.Password)
 	if err != nil {
