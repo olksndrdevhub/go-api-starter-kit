@@ -7,7 +7,10 @@ import (
 	"net/http"
 )
 
-func loadRouters(baseRouter *http.ServeMux) *http.ServeMux {
+func SetupRouters() http.Handler {
+
+	baseRouter := http.NewServeMux()
+
 	// health check router
 	statusRouter := http.NewServeMux()
 	statusRouter.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
@@ -38,5 +41,10 @@ func loadRouters(baseRouter *http.ServeMux) *http.ServeMux {
 	baseRouter.Handle("/admin/", http.StripPrefix("/admin", adminRouter))
 	baseRouter.Handle("/status/", http.StripPrefix("/status", statusRouter))
 
-	return baseRouter
+	middlewareStuck := middleware.CreateStuck(
+		middleware.LogingMiddleware,
+	)
+
+	return middlewareStuck(baseRouter)
+
 }

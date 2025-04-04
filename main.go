@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/olksndrdevhub/go-api-starter-kit/db"
-	"github.com/olksndrdevhub/go-api-starter-kit/middleware"
 	"log"
 	"net/http"
+
+	"github.com/olksndrdevhub/go-api-starter-kit/db"
 )
 
 func main() {
@@ -14,18 +14,11 @@ func main() {
 	}
 	defer db.CloseDBConn()
 
-	baseRouter := http.NewServeMux()
-
-	baseRouter = loadRouters(baseRouter)
-
-	// Create a middleware chain
-	middlewareStuck := middleware.CreateStuck(
-		middleware.LogingMiddleware,
-	)
+	handler := SetupRouters()
 
 	server := http.Server{
 		Addr:    ":8000",
-		Handler: middlewareStuck(baseRouter),
+		Handler: handler,
 	}
 
 	log.Printf("Server is running on http://localhost:8000")
