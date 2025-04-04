@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/olksndrdevhub/go-api-starter-kit/handlers"
 	"github.com/olksndrdevhub/go-api-starter-kit/middleware"
-	"net/http"
 )
 
 func SetupRouters() http.Handler {

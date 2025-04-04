@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -38,5 +39,13 @@ func ParseTime(timeStr string) (time.Time, error) {
 	}
 
 	return parsedTime, nil
+}
 
+// getEnv gets an environment variable or returns a default value
+func GetEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }

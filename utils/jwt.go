@@ -11,7 +11,11 @@ import (
 	"time"
 )
 
-var secretKey = []byte("secretkey") // set secure secret key in prod
+var secretKey []byte // set secure secret key in prod
+
+func SetJWTSecretKey(key []byte) {
+	secretKey = key
+}
 
 // JWTClaims represents the claims in a JWT
 type JWTClaims struct {
