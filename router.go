@@ -43,7 +43,7 @@ func SetupRouters() http.Handler {
 	baseRouter.Handle("/status/", http.StripPrefix("/status", statusRouter))
 
 	middlewareStuck := middleware.CreateStuck(
-		middleware.LogingMiddleware,
+		middleware.LogsMiddleware,
 	)
 
 	return middlewareStuck(baseRouter)

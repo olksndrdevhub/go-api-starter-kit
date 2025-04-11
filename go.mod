@@ -2,10 +2,7 @@ module github.com/olksndrdevhub/go-api-starter-kit
 
 go 1.24.1
 
-require (
-	github.com/mattn/go-sqlite3 v1.14.24
-	golang.org/x/crypto v0.36.0
-)
+require golang.org/x/crypto v0.36.0
 
 require github.com/joho/godotenv v1.5.1
 

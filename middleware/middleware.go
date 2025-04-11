@@ -78,7 +78,7 @@ func (crw *customResponseWriter) Write(b []byte) (int, error) {
 	crw.responseSize += size
 	return size, err
 }
-func LogingMiddleware(next http.Handler) http.Handler {
+func LogsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		crw := &customResponseWriter{
 			ResponseWriter: w,

@@ -2,8 +2,6 @@ package db
 
 import (
 	"time"
-
-	"github.com/olksndrdevhub/go-api-starter-kit/utils"
 )
 
 type User struct {
@@ -16,65 +14,75 @@ type User struct {
 	LastName  string    `json:"last_name"`
 }
 
-func CreateUser(email, password, first_name, last_name string) (int64, error) {
-	query := `insert into users (email, password, first_name, last_name) values (?, ?, ?, ?)`
-	result, err := DB.Exec(query, email, password, first_name, last_name)
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
-}
-
-func UpdateUser(userID int64, first_name, last_name string) error {
-	query := `update users set first_name = ?, last_name = ?, updated_at = current_timestamp where id = ?`
-	_, err := DB.Exec(query, first_name, last_name, userID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func ChangeUserPassword(userID int64, hashedPassword string) error {
-	query := `update users set password = ?, updated_at = current_timestamp where id = ?`
-	_, err := DB.Exec(query, hashedPassword, userID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func CheckUserExistsByEmail(email string) (bool, error) {
-	query := `select count(*) from users where email = ?`
-	var count int
-	err := DB.QueryRow(query, email).Scan(&count)
-	if err != nil {
-		return false, err
-	}
-	return count > 0, nil
-}
-
-func GetUserByEmail(email string) (*User, error) {
-	query := `select id, email, password, first_name, last_name, created_at, updated_at from users where email = ?`
-	row := DB.QueryRow(query, email)
-
+func CreateUser(email, password, first_name, last_name string) (*User, error) {
 	var user User
-	var createdAt string
-	var updatedAt string
-	err := row.Scan(
+	query := `
+    insert into users 
+      (email, password, first_name, last_name) 
+    values 
+      ($1, $2, $3, $4)
+    returning
+      id, email, password, first_name, last_name, created_at, updated_at
+  `
+	err := DB.QueryRow(query, email, password, first_name, last_name).Scan(
 		&user.ID,
 		&user.Email,
 		&user.Password,
 		&user.FirstName,
 		&user.LastName,
-		&createdAt,
-		&updatedAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
-	if err != nil {
-		return nil, err
-	}
+	return &user, err
+}
 
-	user.CreatedAt, err = utils.ParseTime(createdAt)
-	user.UpdatedAt, err = utils.ParseTime(updatedAt)
+func UpdateUser(userID int64, first_name, last_name string) error {
+	query := `
+    update users set 
+      first_name = $1, last_name = $2, updated_at = current_timestamp
+    where id = $3
+  `
+	_, err := DB.Exec(query, first_name, last_name, userID)
+	return err
+
+}
+
+func ChangeUserPassword(userID int64, hashedPassword string) error {
+	query := `
+    update users set 
+      password = $1, updated_at = current_timestamp
+    where id = $2
+  `
+	_, err := DB.Exec(query, hashedPassword, userID)
+	return err
+}
+
+func CheckUserExistsByEmail(email string) (bool, error) {
+	query := `select exists(select 1 from users where email = $1)`
+	var exists bool
+	err := DB.QueryRow(query, email).Scan(&exists)
+	return exists, err
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	query := `
+    select 
+      id, email, password, first_name, last_name, created_at, updated_at
+    from users
+    where 
+      email = $1
+  `
+
+	var user User
+	err := DB.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -83,19 +91,24 @@ func GetUserByEmail(email string) (*User, error) {
 }
 
 func GetUserByID(id int64) (*User, error) {
-	query := `select id, email, password, first_name, last_name, created_at, updated_at from users where id = ?`
-	row := DB.QueryRow(query, id)
+	query := `
+    select 
+      id, email, password, first_name, last_name, created_at, updated_at
+    from users
+    where 
+      id = $1
+  `
 
 	var user User
-	var createdAt string
-	var updatedAt string
-	err := row.Scan(&user.ID, &user.Email, &user.Password, &user.FirstName, &user.LastName, &createdAt, &updatedAt)
-	if err != nil {
-		return nil, err
-	}
-
-	user.CreatedAt, err = utils.ParseTime(createdAt)
-	user.UpdatedAt, err = utils.ParseTime(updatedAt)
+	err := DB.QueryRow(query, id).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
 	if err != nil {
 		return nil, err
 	}

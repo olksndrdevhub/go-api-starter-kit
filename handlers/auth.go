@@ -72,7 +72,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create user
-	userID, err := db.CreateUser(req.Email, hashedPass, req.FirstName, req.LastName)
+	user, err := db.CreateUser(req.Email, hashedPass, req.FirstName, req.LastName)
 	if err != nil {
 		log.Printf("ERROR: %v", err)
 		http.Error(w, "Error creationg user", http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate JWT token
-	token, err := utils.GenerateJWTToken(userID, req.Email)
+	token, err := utils.GenerateJWTToken(user.ID, req.Email)
 	if err != nil {
 		http.Error(w, "Error generating JWT token", http.StatusInternalServerError)
 		return
@@ -90,7 +90,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	response := AuthResponse{
 		Token:   token,
 		Message: "Registration successful",
-		UserId:  userID,
+		UserId:  user.ID,
 	}
 
 	utils.WriteJson(w, http.StatusCreated, response)

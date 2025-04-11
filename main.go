@@ -19,22 +19,17 @@ func main() {
 	jwtSecret := utils.GetEnv("JWT_SECRET", "secret")
 	utils.SetJWTSecretKey([]byte(jwtSecret))
 
-	// Get database configuration from environment
-	dbType := utils.GetEnv("DB_TYPE", "sqlite") // Default to SQLite
-
 	dbConfig := db.DBConfig{
-		Type:     dbType,
 		Host:     utils.GetEnv("DB_HOST", "localhost"),
 		Port:     utils.GetEnv("DB_PORT", "5432"), // PostgreSQL default port
 		User:     utils.GetEnv("DB_USER", "postgres"),
 		Password: utils.GetEnv("DB_PASSWORD", ""),
 		DBName:   utils.GetEnv("DB_NAME", "app"),
 		SSLMode:  utils.GetEnv("DB_SSL_MODE", "disable"), // For PostgreSQL
-		FilePath: utils.GetEnv("DB_FILE", "./app.db"),    // For SQLite
 	}
 
 	// Create database instance
-	err = db.NewDB(dbConfig)
+	err = db.InitDB(dbConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
